@@ -1,0 +1,13 @@
+Examples/Assets/Models/0024_combined_TFF_Atlas_Vegetation_1A_D[[:space:]][[:space:]][Toon_TFF_CustomToonVegetation].fbx filter=lfs diff=lfs merge=lfs -text
+Examples/Assets/Models/0043_combined_TFF_Grass_Patch_01A[[:space:]][[:space:]][Toon_TFF_CustomGrass].fbx filter=lfs diff=lfs merge=lfs -text
+Examples/Assets/Models/0023_combined_TFF_Atlas_1A_D[[:space:]][[:space:]][Toon_TFF_CustomToonOutline].fbx filter=lfs diff=lfs merge=lfs -text
+Examples/Assets/Models/**/*.fbx filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+Examples/Assets/Textures/New[[:space:]]Terrain[[:space:]]x(2)[[:space:]]y(2)[[:space:]]Basemap[[:space:]]Diffuse.png filter=lfs diff=lfs merge=lfs -text
+Examples/Assets/Models/0024_combined_TFF_Atlas_Vegetation_1A_D[[:space:]][Toon_TFF_CustomToonVegetation].fbx filter=lfs diff=lfs merge=lfs -text
+Examples/Assets/Models/0043_combined_TFF_Grass_Patch_01A[[:space:]][Toon_TFF_CustomGrass].fbx filter=lfs diff=lfs merge=lfs -text
+Examples/Assets/Models/*.fbx filter=lfs diff=lfs merge=lfs -text
+“ship.scene” filter=lfs diff=lfs merge=lfs -text
+*.scene filter=lfs diff=lfs merge=lfs -text
+“Examples/Assets/Scenes/ship.scene” filter=lfs diff=lfs merge=lfs -text

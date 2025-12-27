@@ -1,0 +1,20 @@
+# Build artifacts
+bin/
+obj/
+
+# Rider / JetBrains
+.idea/
+*.user
+*.suo
+*.userprefs
+*.csproj.user
+*.DotSettings*
+
+# Unity içinse:
+Library/
+Temp/
+Logs/
+UserSettings/
+MemoryCaptures/
+Build/
+Application/bin/Debug/net9.0/Application.pdb
