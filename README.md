@@ -6,6 +6,9 @@ A custom 3D game engine built with C# and OpenTK, featuring modern rendering tec
 > This is the first version built entirely for educational purposes, with **no optimizations** implemented (no camera culling, static/dynamic batching, LOD systems, etc.).
 > My future plan is to learn C++ and rebuild this project in C++, focusing on deep optimization techniques and performance improvements.
 
+> Some assets used in the toon scene (such as environment models) are **not included in this public repository**
+> due to licensing and distribution restrictions.
+
 ## 🎮 Features
 
 ### Rendering
