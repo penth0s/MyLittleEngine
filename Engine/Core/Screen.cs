@@ -22,7 +22,7 @@ public static class Screen
     /// </summary>
     public static Vector2i Resolution { get; internal set; }
 
-    private static IEditorInfoProvier _editorInfoProvider;
+    private static IEditorInfoProvider _editorInfoProvider;
 
     #endregion
 
@@ -33,7 +33,7 @@ public static class Screen
     /// </summary>
     /// <param name="editorInfoProvider">Provider for editor state and viewport information.</param>
     /// <param name="baseResolution">The base resolution before DPI scaling.</param>
-    internal static void Initialize(IEditorInfoProvier editorInfoProvider, Vector2i baseResolution)
+    internal static void Initialize(IEditorInfoProvider editorInfoProvider, Vector2i baseResolution)
     {
         ValidateEditorInfoProvider(editorInfoProvider);
 
@@ -41,7 +41,7 @@ public static class Screen
         Resolution = CalculateScaledResolution(baseResolution);
     }
 
-    private static void ValidateEditorInfoProvider(IEditorInfoProvier editorInfoProvider)
+    private static void ValidateEditorInfoProvider(IEditorInfoProvider editorInfoProvider)
     {
         if (editorInfoProvider == null)
             throw new ArgumentNullException(

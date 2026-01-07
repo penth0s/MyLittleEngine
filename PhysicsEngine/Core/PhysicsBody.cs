@@ -1,4 +1,5 @@
 using Adapters;
+using Engine.Utilities;
 using Jitter2.Collision.Shapes;
 using Jitter2.Dynamics;
 using Jitter2.LinearMath;

@@ -13,7 +13,7 @@ public sealed class SceneSystem : ISystem
 {
     #region Constants
 
-    private const string DEFAULT_SCENE_NAME = "CapeScene";
+    private const string DEFAULT_SCENE_NAME = "FPS_Scene";
     private const string SCENE_FILE_EXTENSION = ".scene";
 
     #endregion

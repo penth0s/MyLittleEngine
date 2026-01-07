@@ -25,7 +25,7 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
     private RenderSystem _renderSystem;
     private SceneSystem _sceneSystem;
     private EngineInfoProviderSystem _engineInfoProviderSystem;
-    private IEditorInfoProvier _editorInfoProvier;
+    private IEditorInfoProvider _editorInfoProvier;
     
     #endregion
 
@@ -67,7 +67,7 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
         _engineInfoProviderSystem.OnEngineInitialized();
     }
     
-    public void ImportEditorProvider(IEditorInfoProvier editorInfoProvier)
+    public void ImportEditorProvider(IEditorInfoProvider editorInfoProvier)
     {
         _editorInfoProvier = editorInfoProvier;
         _editorInfoProvier.RaycastRequest += OnEditorRaycastRequest;

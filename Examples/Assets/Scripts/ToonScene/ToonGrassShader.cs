@@ -6,6 +6,7 @@ using Engine.Database.Implementations;
 using Engine.Rendering;
 using Engine.Shaders;
 using Engine.Systems;
+using Engine.Utilities;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Environment = Engine.Scene.Environment;

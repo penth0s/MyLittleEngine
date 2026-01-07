@@ -7,7 +7,7 @@ namespace Editor.Core;
 /// Provides editor state information and viewport data to the engine.
 /// Acts as a bridge between the editor UI and the rendering system.
 /// </summary>
-public class EditorInfoProvider : IEditorInfoProvier
+public class EditorInfoProvider : IEditorInfoProvider
 {
     #region Fields
 

@@ -2,6 +2,7 @@ using Adapters;
 using Assimp;
 using Engine.Rendering;
 using Engine.Shaders;
+using Engine.Utilities;
 using OpenTK.Mathematics;
 using Bone = Engine.Animation.Bone;
 using Material = Engine.Rendering.Material;

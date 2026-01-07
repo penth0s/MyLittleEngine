@@ -2,7 +2,7 @@ using System.Numerics;
 using OpenTK.Mathematics;
 using Vector4 = System.Numerics.Vector4;
 
-namespace Adapters;
+namespace Engine.Utilities;
 
 public static class EngineExtensions
 {

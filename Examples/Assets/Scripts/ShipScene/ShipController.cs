@@ -3,6 +3,7 @@ using Engine.Components;
 using Engine.Core;
 using Engine.Rendering;
 using Engine.Systems;
+using Engine.Utilities;
 using OpenTK.Mathematics;
 
 namespace Project.Assets.Scripts.ShipScene;

@@ -2,7 +2,7 @@ using OpenTK.Mathematics;
 
 namespace Adapters;
 
-public interface IEditorInfoProvier
+public interface IEditorInfoProvider
 {
     bool IsDebugView { get; }
     bool IsWireFrameActive { get; }

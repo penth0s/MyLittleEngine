@@ -16,7 +16,7 @@
 
 
     <ItemGroup>
-        <ProjectReference Include="..\Adapters\Adapters.csproj"/>
+        <ProjectReference Include="..\Adapters\Adapters.csproj" />
         <ProjectReference Include="..\Engine\Engine.csproj"/>
     </ItemGroup>
 
