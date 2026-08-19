@@ -15,10 +15,10 @@ public class Editor
 {
     #region Constants
 
+    // Authored in logical points - multiplied by the display's DPI scale at draw time.
     private const float VIEWPORT_TOGGLE_WIDTH = 300f;
     private const float VIEWPORT_TOGGLE_HEIGHT = 25f;
     private const float VIEWPORT_TOGGLE_PADDING = 40f;
-    private const float IMGUI_FONT_SCALE = 2.0f;
     private const float IMGUI_GLOBAL_FONT_SCALE = 1.0f;
 
     #endregion
@@ -186,6 +186,9 @@ public class Editor
     {
         _imGuiController.Update(window, (float)frameEventArgs.Time);
 
+        // Publish the live DPI scale before anything draws, so every panel sizes itself correctly.
+        EditorUI.DpiScale = _imGuiController.DpiScale;
+
         ImGui.NewFrame();
         DrawEditorUI();
         DrawViewport(frameTextureId);
@@ -276,7 +279,7 @@ public class Editor
     private void DrawViewport(int frameTextureId)
     {
         ImGui.Begin("Scene View");
-        ImGui.SetWindowFontScale(IMGUI_FONT_SCALE);
+        ImGui.SetWindowFontScale(EditorUI.FontScale);
 
         var contentSize = ImGui.GetContentRegionAvail();
 
@@ -299,14 +302,14 @@ public class Editor
     {
         var controlPosition = new System.Numerics.Vector2(
             0,
-            VIEWPORT_TOGGLE_PADDING + ImGui.GetStyle().FramePadding.Y
+            EditorUI.Scaled(VIEWPORT_TOGGLE_PADDING) + ImGui.GetStyle().FramePadding.Y
         );
 
         ImGui.SetCursorPos(controlPosition);
 
         if (ImGui.BeginChild(
                 "ViewportToggles",
-                new System.Numerics.Vector2(VIEWPORT_TOGGLE_WIDTH, VIEWPORT_TOGGLE_HEIGHT),
+                EditorUI.Scaled(VIEWPORT_TOGGLE_WIDTH, VIEWPORT_TOGGLE_HEIGHT),
                 ImGuiChildFlags.None,
                 ImGuiWindowFlags.NoScrollbar))
             DrawViewportToggles();

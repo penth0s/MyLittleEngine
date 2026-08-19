@@ -29,7 +29,14 @@ internal class ImGuiController : IDisposable
 
     private int _windowWidth;
     private int _windowHeight;
-    
+
+    /// <summary>
+    /// Physical pixels per logical point, queried from the window every frame.
+    /// 1.0 on a standard display, 2.0 on Retina. This must never be hardcoded:
+    /// it changes when the display scaling changes or the window moves to another monitor.
+    /// </summary>
+    public float DpiScale { get; private set; } = 1.0f;
+
     private static bool KHRDebugAvailable;
 
     private readonly int GLVersion;
@@ -211,11 +218,31 @@ void main()
     {
         if (_frameBegun) ImGui.Render();
 
+        UpdateDpiScale(wnd);
         SetPerFrameImGuiData(deltaSeconds);
 
         UpdateImGuiInput(wnd);
 
         _frameBegun = true;
+    }
+
+    /// <summary>
+    /// Derives the DPI scale from the window itself (framebuffer pixels / logical points)
+    /// so the editor works on 1x, 2x and fractionally scaled displays alike.
+    /// </summary>
+    private void UpdateDpiScale(GameWindow wnd)
+    {
+        var clientSize = wnd.ClientSize;
+        var framebufferSize = wnd.FramebufferSize;
+
+        if (clientSize.X <= 0 || clientSize.Y <= 0)
+            return;
+
+        DpiScale = (float)framebufferSize.X / clientSize.X;
+
+        // Guard against a transient bogus value while the window is being created/moved.
+        if (DpiScale <= 0f || float.IsNaN(DpiScale))
+            DpiScale = 1.0f;
     }
 
     /// <summary>
@@ -246,9 +273,11 @@ void main()
         io.MouseDown[3] = MouseState[MouseButton.Button4];
         io.MouseDown[4] = MouseState[MouseButton.Button5];
 
-        var screenPoint = new Vector2i((int)MouseState.X, (int)MouseState.Y);
-        var point = screenPoint; //wnd.PointToClient(screenPoint);
-        io.MousePos = new System.Numerics.Vector2(point.X * 2, point.Y * 2);
+        // ImGui's DisplaySize is expressed in framebuffer pixels, but GLFW reports the
+        // cursor in logical points - convert with the live DPI scale instead of a fixed 2x.
+        io.MousePos = new System.Numerics.Vector2(
+            MouseState.X * DpiScale,
+            MouseState.Y * DpiScale);
 
         foreach (Keys key in Enum.GetValues(typeof(Keys)))
         {

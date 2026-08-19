@@ -75,11 +75,11 @@ internal static class DebugConsole
     {
         if (!isVisible) return;
 
-        ImGui.SetNextWindowSize(new Vector2(800, 400), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(EditorUI.Scaled(800, 400), ImGuiCond.FirstUseEver);
 
         if (ImGui.Begin("Debug Console", ref isVisible))
         {
-            ImGui.SetWindowFontScale(2.0f);
+            ImGui.SetWindowFontScale(EditorUI.FontScale);
 
             DrawToolbar();
             ImGui.Separator();

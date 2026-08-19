@@ -15,7 +15,6 @@ internal class Hierarchy
     private const float WINDOW_POSITION_X_RATIO = 0.7f;
     private const float WINDOW_WIDTH_RATIO = 0.15f;
     private const float WINDOW_HEIGHT = 800f;
-    private const float IMGUI_FONT_SCALE = 2.0f;
     private const string DRAG_DROP_PAYLOAD_TYPE = "PROJECT_FILE";
 
     #endregion
@@ -58,7 +57,7 @@ internal class Hierarchy
 
         if (ImGui.Begin("Hierarchy"))
         {
-            ImGui.SetWindowFontScale(IMGUI_FONT_SCALE);
+            ImGui.SetWindowFontScale(EditorUI.FontScale);
 
             DrawSceneObjects();
             SetupDragDropTarget();
@@ -97,8 +96,8 @@ internal class Hierarchy
 
     private void SetupHierarchyWindow()
     {
-        ImGui.SetNextWindowPos(CalculateWindowPosition(), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(CalculateWindowSize(), ImGuiCond.Always);
+        ImGui.SetNextWindowPos(CalculateWindowPosition(), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(CalculateWindowSize(), ImGuiCond.FirstUseEver);
     }
 
     private System.Numerics.Vector2 CalculateWindowPosition()
@@ -114,7 +113,7 @@ internal class Hierarchy
         var io = ImGui.GetIO();
         var screenSize = io.DisplaySize;
 
-        return new System.Numerics.Vector2(screenSize.X * WINDOW_WIDTH_RATIO, WINDOW_HEIGHT);
+        return new System.Numerics.Vector2(screenSize.X * WINDOW_WIDTH_RATIO, EditorUI.Scaled(WINDOW_HEIGHT));
     }
 
     #endregion

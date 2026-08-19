@@ -9,18 +9,27 @@ namespace Engine.Core;
 /// </summary>
 public static class Screen
 {
-    #region Constants
-
-    private const int DPI_SCALE_FACTOR = 2;
-
-    #endregion
-
     #region Fields
 
     /// <summary>
-    /// The current screen resolution scaled by DPI factor.
+    /// The current framebuffer resolution, in physical pixels.
+    /// On HiDPI/Retina displays this is larger than <see cref="LogicalSize"/>;
+    /// the ratio between them is exposed as <see cref="DpiScale"/>.
     /// </summary>
     public static Vector2i Resolution { get; internal set; }
+
+    /// <summary>
+    /// The logical (device independent) size of the window, in points.
+    /// This is the coordinate space mouse input arrives in.
+    /// </summary>
+    public static Vector2i LogicalSize { get; internal set; }
+
+    /// <summary>
+    /// Physical pixels per logical point. 1.0 on a standard display, 2.0 on Retina.
+    /// Queried from the OS at runtime - never hardcode this.
+    /// </summary>
+    public static float DpiScale =>
+        LogicalSize.X > 0 ? (float)Resolution.X / LogicalSize.X : 1.0f;
 
     private static IEditorInfoProvider _editorInfoProvider;
 
@@ -29,16 +38,21 @@ public static class Screen
     #region Initialization
 
     /// <summary>
-    /// Initializes the Screen utility with editor information and base resolution.
+    /// Initializes the Screen utility with editor information and the real window sizes.
     /// </summary>
     /// <param name="editorInfoProvider">Provider for editor state and viewport information.</param>
-    /// <param name="baseResolution">The base resolution before DPI scaling.</param>
-    internal static void Initialize(IEditorInfoProvider editorInfoProvider, Vector2i baseResolution)
+    /// <param name="framebufferSize">The framebuffer size in physical pixels.</param>
+    /// <param name="logicalSize">The window client size in logical points.</param>
+    internal static void Initialize(
+        IEditorInfoProvider editorInfoProvider,
+        Vector2i framebufferSize,
+        Vector2i logicalSize)
     {
         ValidateEditorInfoProvider(editorInfoProvider);
 
         _editorInfoProvider = editorInfoProvider;
-        Resolution = CalculateScaledResolution(baseResolution);
+        Resolution = framebufferSize;
+        LogicalSize = logicalSize;
     }
 
     private static void ValidateEditorInfoProvider(IEditorInfoProvider editorInfoProvider)
@@ -48,11 +62,6 @@ public static class Screen
                 nameof(editorInfoProvider),
                 "Editor info provider cannot be null."
             );
-    }
-
-    private static Vector2i CalculateScaledResolution(Vector2i baseResolution)
-    {
-        return baseResolution * DPI_SCALE_FACTOR;
     }
 
     #endregion
@@ -103,13 +112,27 @@ public static class Screen
 
     /// <summary>
     /// Gets the current viewport size in pixels.
+    /// Guaranteed to be at least 1x1: during the very first frame the editor has not
+    /// laid out its Scene View yet, and a 0-sized OpenGL framebuffer is invalid
+    /// (FramebufferIncompleteAttachment). Framebuffers resize themselves once the real
+    /// viewport is known, so a small starting size is harmless.
     /// </summary>
     /// <returns>The viewport size as a 2D vector (width, height).</returns>
     /// <exception cref="InvalidOperationException">Thrown if Screen has not been initialized.</exception>
     public static Vector2i GetViewportSize()
     {
         ValidateInitialized();
-        return _editorInfoProvider!.GetViewportSize();
+
+        var viewportSize = _editorInfoProvider!.GetViewportSize();
+
+        if (viewportSize.X > 0 && viewportSize.Y > 0)
+            return viewportSize;
+
+        // Fall back to the full framebuffer while the editor layout is still settling.
+        if (Resolution.X > 0 && Resolution.Y > 0)
+            return Resolution;
+
+        return Vector2i.One;
     }
 
     /// <summary>

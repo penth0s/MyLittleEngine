@@ -18,9 +18,14 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
 
     public static float ScaleFactor = 0.01f;
 
+    private const int FALLBACK_WIDTH = 1280;
+    private const int FALLBACK_HEIGHT = 720;
+
     #endregion
 
     #region Fields
+
+    private bool _isShuttingDown;
 
     private RenderSystem _renderSystem;
     private SceneSystem _sceneSystem;
@@ -63,16 +68,47 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
 
     private void InitializeEditor()
     {
+        // OnLoad is the first point where the window is actually realized, so re-query
+        // the sizes here. Before Run() the framebuffer can still report 0x0 on macOS.
+        RefreshScreenMetrics();
+
         _engineInfoProviderSystem.Resolution = Screen.Resolution;
         _engineInfoProviderSystem.OnEngineInitialized();
     }
-    
+
+    /// <summary>
+    /// Pulls the real framebuffer (physical pixels) and client (logical points) sizes
+    /// from the window into <see cref="Screen"/>, falling back to a sane default if the
+    /// platform has not produced a valid surface yet.
+    /// </summary>
+    private void RefreshScreenMetrics()
+    {
+        var framebufferSize = FramebufferSize;
+        var logicalSize = ClientSize;
+
+        if (logicalSize.X <= 0 || logicalSize.Y <= 0)
+            logicalSize = new Vector2i(FALLBACK_WIDTH, FALLBACK_HEIGHT);
+
+        // Some platforms report 0x0 for the framebuffer until the first real frame.
+        if (framebufferSize.X <= 0 || framebufferSize.Y <= 0)
+            framebufferSize = logicalSize;
+
+        Screen.Resolution = framebufferSize;
+        Screen.LogicalSize = logicalSize;
+
+        Console.WriteLine(
+            $"Screen metrics: framebuffer {framebufferSize.X}x{framebufferSize.Y}, " +
+            $"client {logicalSize.X}x{logicalSize.Y}, dpi scale {Screen.DpiScale:0.##}");
+    }
+
     public void ImportEditorProvider(IEditorInfoProvider editorInfoProvier)
     {
         _editorInfoProvier = editorInfoProvier;
         _editorInfoProvier.RaycastRequest += OnEditorRaycastRequest;
 
-        Screen.Initialize(_editorInfoProvier, ClientSize);
+        // Ask the OS for the real sizes instead of assuming a 2x Retina scale.
+        // These get refreshed again in OnLoad once the surface really exists.
+        Screen.Initialize(_editorInfoProvier, FramebufferSize, ClientSize);
     }
 
     public IGameEngineInfoProvider GetEngineInfoProvider()
@@ -104,6 +140,9 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
     protected override void OnRenderFrame(FrameEventArgs e)
     {
         base.OnRenderFrame(e);
+
+        if (_isShuttingDown)
+            return;
 
         if (_sceneSystem.IsSceneReady)
         {
@@ -148,13 +187,18 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
     {
         base.OnUpdateFrame(e);
 
+        if (_isShuttingDown)
+            return;
+
         if (!IsFocused)
             return;
 
         if (KeyboardState.IsKeyDown(Keys.Escape))
         {
-            _engineInfoProviderSystem.OnEngineShutdown();
-            Close();
+            // Only ask the window to close. Tearing down GPU resources here would leave
+            // the render frame that still runs this iteration drawing with disposed
+            // framebuffers/meshes. The actual shutdown happens in OnUnload.
+            BeginShutdown();
             return;
         }
 
@@ -183,17 +227,54 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
 
     #endregion
 
+    #region Shutdown
+
+    /// <summary>
+    /// Requests a clean shutdown. Only flips the flag and asks GLFW to close the window -
+    /// no GPU resource is touched here, because the current loop iteration may still run a
+    /// render frame. The real teardown happens in <see cref="OnUnload"/>, once the loop has
+    /// exited and nothing else will draw.
+    /// </summary>
+    private void BeginShutdown()
+    {
+        if (_isShuttingDown)
+            return;
+
+        _isShuttingDown = true;
+        Close();
+    }
+
+    /// <summary>
+    /// Called by OpenTK after the run loop has ended, for any close reason (Escape, the
+    /// window's close button, or the OS). This is the only safe place to release
+    /// framebuffers, meshes, shaders and the ImGui backend.
+    /// </summary>
+    protected override void OnUnload()
+    {
+        _isShuttingDown = true;
+
+        _engineInfoProviderSystem?.OnEngineShutdown();
+
+        base.OnUnload();
+    }
+
+    #endregion
+
     #region Resize / Input Events
 
     protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
     {
         base.OnFramebufferResize(e);
 
+        if (_isShuttingDown)
+            return;
+
         if (e.Width <= 0 || e.Height <= 0)
             return;
 
-        Console.WriteLine($"Framebuffer resized to {e.Width}x{e.Height}");
+        Console.WriteLine($"Framebuffer resized to {e.Width}x{e.Height} (client {ClientSize.X}x{ClientSize.Y})");
         Screen.Resolution = new Vector2i(e.Width, e.Height);
+        Screen.LogicalSize = ClientSize;
 
         _engineInfoProviderSystem.OnResizeEditor(Screen.Resolution);
     }
@@ -201,12 +282,20 @@ public class EngineWindow(GameWindowSettings gameWindowSettings, NativeWindowSet
     protected override void OnTextInput(TextInputEventArgs e)
     {
         base.OnTextInput(e);
+
+        if (_isShuttingDown)
+            return;
+
         _engineInfoProviderSystem.OnTextInput(e);
     }
 
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
         base.OnMouseWheel(e);
+
+        if (_isShuttingDown)
+            return;
+
         _engineInfoProviderSystem.OnMouseWheel(e);
     }
 

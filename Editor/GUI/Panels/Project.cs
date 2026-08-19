@@ -15,7 +15,6 @@ internal class Project
     private const float WINDOW_POSITION_Y_RATIO = 0.41f;
     private const float WINDOW_WIDTH_RATIO = 0.15f;
     private const float WINDOW_HEIGHT_RATIO = 0.6f;
-    private const float IMGUI_FONT_SCALE = 2.0f;
     private const string DRAG_DROP_PAYLOAD_TYPE = "PROJECT_FILE";
     private const string CONTEXT_MENU_ID = "project_right_click";
     private const string DEFAULT_FOLDER_NAME = "New Folder";
@@ -60,7 +59,7 @@ internal class Project
 
         if (ImGui.Begin("Examples"))
         {
-            ImGui.SetWindowFontScale(IMGUI_FONT_SCALE);
+            ImGui.SetWindowFontScale(EditorUI.FontScale);
             DrawDirectoryTree(_rootPath);
         }
 
@@ -75,8 +74,8 @@ internal class Project
 
     private void SetupProjectWindow()
     {
-        ImGui.SetNextWindowPos(CalculateWindowPosition(), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(CalculateWindowSize(), ImGuiCond.Always);
+        ImGui.SetNextWindowPos(CalculateWindowPosition(), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(CalculateWindowSize(), ImGuiCond.FirstUseEver);
     }
 
     private System.Numerics.Vector2 CalculateWindowPosition()

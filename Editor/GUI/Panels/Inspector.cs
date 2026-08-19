@@ -16,7 +16,6 @@ internal class Inspector
 
     private const float WINDOW_POSITION_X_RATIO = 0.85f;
     private const float WINDOW_WIDTH_RATIO = 0.15f;
-    private const float IMGUI_FONT_SCALE = 2.0f;
     private const float ADD_COMPONENT_BUTTON_WIDTH = 250f;
     private const float ADD_COMPONENT_SPACING = 50f;
     private const int NAME_INPUT_MAX_LENGTH = 100;
@@ -62,7 +61,7 @@ internal class Inspector
 
         if (ImGui.Begin("Inspector"))
         {
-            ImGui.SetWindowFontScale(IMGUI_FONT_SCALE);
+            ImGui.SetWindowFontScale(EditorUI.FontScale);
 
             if (_selectedGameObject != null) DrawInspectorContent();
         }
@@ -76,8 +75,8 @@ internal class Inspector
 
     private void SetupInspectorWindow()
     {
-        ImGui.SetNextWindowPos(CalculateWindowPosition(), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(CalculateWindowSize(), ImGuiCond.Always);
+        ImGui.SetNextWindowPos(CalculateWindowPosition(), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(CalculateWindowSize(), ImGuiCond.FirstUseEver);
     }
 
     private System.Numerics.Vector2 CalculateWindowPosition()
@@ -207,11 +206,11 @@ internal class Inspector
 
     private void DrawAddComponentButton()
     {
-        ImGui.Dummy(new System.Numerics.Vector2(0, ADD_COMPONENT_SPACING));
+        ImGui.Dummy(new System.Numerics.Vector2(0, EditorUI.Scaled(ADD_COMPONENT_SPACING)));
 
         CenterAddComponentButton();
 
-        if (ImGui.Button("Add Component", new System.Numerics.Vector2(ADD_COMPONENT_BUTTON_WIDTH, 0)))
+        if (ImGui.Button("Add Component", new System.Numerics.Vector2(EditorUI.Scaled(ADD_COMPONENT_BUTTON_WIDTH), 0)))
             OpenAddComponentPopup();
 
         if (_showAddComponentPopup) DrawAddComponentPopup();
@@ -220,7 +219,7 @@ internal class Inspector
     private void CenterAddComponentButton()
     {
         var contentWidth = ImGui.GetContentRegionAvail().X;
-        var buttonOffset = (contentWidth - ADD_COMPONENT_BUTTON_WIDTH) * 0.5f;
+        var buttonOffset = (contentWidth - EditorUI.Scaled(ADD_COMPONENT_BUTTON_WIDTH)) * 0.5f;
         ImGui.SetCursorPosX(buttonOffset);
     }
 
